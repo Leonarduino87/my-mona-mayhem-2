@@ -29,13 +29,13 @@ Se il file esiste già, Copilot può suggerire delle migliorie da accettare o ri
 [documentazione /init](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#project-initialization-for-copilot)
 
 ### backgroud agents
-- utilizzando il local agent
+- utilizzando il **local agent**
 
 ```text
 Aggiungi regole di linting per le variabili inutilizzate e per migliorare lo stile del codice; Sistema ogni errore
 ```
 
-- utilizzando il cloud agent
+- utilizzando il **cloud agent**
 
 ```text
 Rendi il README più accattivante, in stile landing page
