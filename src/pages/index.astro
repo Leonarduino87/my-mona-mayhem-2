@@ -1,5 +1,4 @@
 ---
-
 ---
 
 <html lang="en">
@@ -8,10 +7,233 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Mona Mayhem</title>
+		<title>Mona Mayhem - GitHub Contribution Battle Arena</title>
 	</head>
 	<body>
-		<h1>Mona Mayhem</h1>
-		<p>Welcome to Mona Mayhem! Time to build a GitHub Contribution Battle Arena.</p>
+		<main class="battle">
+			<header>
+				<h1>Mona Mayhem</h1>
+				<p>GitHub Contribution Battle Arena</p>
+			</header>
+
+			<form id="battle-form">
+				<div class="players">
+					<label>
+						Player 1
+						<input id="player-one" name="playerOne" type="text" autocomplete="off" required />
+					</label>
+					<label>
+						Player 2
+						<input id="player-two" name="playerTwo" type="text" autocomplete="off" required />
+					</label>
+				</div>
+				<button type="submit">Start Battle</button>
+			</form>
+
+			<section class="results" aria-labelledby="results-heading" aria-live="polite" role="status">
+				<h2 id="results-heading">Battle Results</h2>
+				<p>Enter two GitHub usernames to start a battle.</p>
+			</section>
+		</main>
 	</body>
 </html>
+
+<style>
+	:global(*) {
+		box-sizing: border-box;
+	}
+
+	:global(body) {
+		margin: 0;
+		background: #f4f4f5;
+		color: #222;
+		font-family: Arial, sans-serif;
+	}
+
+	.battle {
+		width: min(100% - 2rem, 42rem);
+		margin: 4rem auto;
+		padding: 2rem;
+		border: 1px solid #ddd;
+		border-radius: 0.5rem;
+		background: #fff;
+	}
+
+	header {
+		margin-bottom: 2rem;
+		text-align: center;
+	}
+
+	h1,
+	header p {
+		margin: 0.5rem 0;
+	}
+
+	.players {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	label {
+		display: grid;
+		gap: 0.5rem;
+		font-weight: 700;
+	}
+
+	input,
+	button {
+		min-height: 2.75rem;
+		padding: 0.625rem 0.75rem;
+		border: 1px solid #aaa;
+		border-radius: 0.25rem;
+		font: inherit;
+	}
+
+	button {
+		width: 100%;
+		border-color: #24292f;
+		background: #24292f;
+		color: #fff;
+		cursor: pointer;
+	}
+
+	button:disabled {
+		cursor: wait;
+		opacity: 0.65;
+	}
+
+	.results {
+		min-height: 6rem;
+		margin-top: 2rem;
+		padding-top: 1rem;
+		border-top: 1px solid #ddd;
+		text-align: center;
+	}
+
+	.results h2 {
+		margin-top: 0;
+	}
+
+	@media (max-width: 36rem) {
+		.battle {
+			margin: 1rem auto;
+			padding: 1.25rem;
+		}
+
+		.players {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('#battle-form');
+	const playerOneInput = document.querySelector<HTMLInputElement>('#player-one');
+	const playerTwoInput = document.querySelector<HTMLInputElement>('#player-two');
+	const submitButton = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+	const results = document.querySelector<HTMLElement>('.results');
+	const resultsHeading = results?.querySelector<HTMLHeadingElement>('#results-heading');
+
+	if (!form || !playerOneInput || !playerTwoInput || !submitButton || !results || !resultsHeading) {
+		throw new Error('The battle form could not be initialized.');
+	}
+
+	function isRecord(value: unknown): value is Record<string, unknown> {
+		return typeof value === 'object' && value !== null;
+	}
+
+	function getContributionTotal(value: unknown): number | null {
+		if (!isRecord(value) || !Array.isArray(value.weeks)) return null;
+
+		let total = 0;
+		for (const week of value.weeks) {
+			if (!isRecord(week) || !Array.isArray(week.days)) return null;
+			for (const day of week.days) {
+				if (
+					!isRecord(day)
+					|| typeof day.count !== 'number'
+					|| !Number.isSafeInteger(day.count)
+					|| day.count < 0
+				) {
+					return null;
+				}
+				total += day.count;
+				if (!Number.isSafeInteger(total)) return null;
+			}
+		}
+
+		return total;
+	}
+
+	async function fetchContributionTotal(username: string): Promise<number> {
+		const response = await fetch(`/api/contributions/${encodeURIComponent(username)}`);
+		let payload: unknown;
+
+		try {
+			payload = await response.json();
+		} catch {
+			throw new Error('The server returned an invalid response.');
+		}
+
+		if (!response.ok) {
+			const message = isRecord(payload) && typeof payload.error === 'string'
+				? payload.error
+				: 'Unable to load contributions for one of the players.';
+			throw new Error(message);
+		}
+
+		const total = getContributionTotal(payload);
+		if (total === null) {
+			throw new Error('The server returned contribution data in an unexpected format.');
+		}
+		return total;
+	}
+
+	function showMessage(message: string): void {
+		const paragraph = document.createElement('p');
+		paragraph.textContent = message;
+		results.replaceChildren(resultsHeading, paragraph);
+	}
+
+	form.addEventListener('submit', async (event) => {
+		event.preventDefault();
+
+		const playerOne = playerOneInput.value.trim();
+		const playerTwo = playerTwoInput.value.trim();
+		if (!playerOne || !playerTwo) {
+			showMessage('Enter both GitHub usernames to start a battle.');
+			return;
+		}
+
+		submitButton.disabled = true;
+		submitButton.textContent = 'Battle in progress...';
+		showMessage('Loading contribution data...');
+
+		try {
+			const [playerOneTotal, playerTwoTotal] = await Promise.all([
+				fetchContributionTotal(playerOne),
+				fetchContributionTotal(playerTwo),
+			]);
+			const outcome = playerOneTotal === playerTwoTotal
+				? "It's a tie!"
+				: `${playerOneTotal > playerTwoTotal ? playerOne : playerTwo} wins!`;
+			const score = document.createElement('p');
+			score.textContent = `${playerOne}: ${playerOneTotal} contributions | ${playerTwo}: ${playerTwoTotal} contributions`;
+			const winner = document.createElement('p');
+			winner.textContent = outcome;
+			results.replaceChildren(resultsHeading, score, winner);
+		} catch (error) {
+			const message = error instanceof TypeError
+				? 'Unable to reach the contributions API. Check your connection and try again.'
+				: error instanceof Error
+					? error.message
+					: 'The battle could not be completed.';
+			showMessage(message);
+		} finally {
+			submitButton.disabled = false;
+			submitButton.textContent = 'Start Battle';
+		}
+	});
+</script>

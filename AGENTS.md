@@ -1,7 +1,7 @@
 # Project Instructions
 
 ## Overview
-Mona Mayhem is an Astro 6 app for a GitHub contribution battle arena. The app lives in `src/`; its current routes include the home page and a contribution API endpoint. It uses TypeScript, strict Astro settings, and the Node standalone adapter. The API endpoint is not implemented yet. Refer to [README.md](README.md) for the project overview and deployment notes.
+Mona Mayhem is an Astro 6 app for a GitHub contribution battle arena. The app lives in `src/`; its current routes include the home page and a contribution API endpoint. It uses TypeScript, strict Astro settings, and the Node standalone adapter. The API endpoint `GET /api/contributions/[username]` proxies `https://github.com/{username}.contribs` server-side (fetch, error handling, and in-memory TTL cache live in `src/lib/github-contributions.ts`). Refer to [README.md](README.md) for the project overview and deployment notes.
 
 Ignore `workshop/` when working on the app unless the user explicitly asks about workshop content.
 
