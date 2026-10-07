@@ -2,6 +2,10 @@
 
 ## 01 Setup & Context Engineering
 
+vedremo:
+- sezione 1 - initial setup
+- sezione 2 - context engineering
+
 ### sezione 1 - initial setup
 
 Per startare l'app, aprire il terminale nella project root
@@ -55,13 +59,13 @@ Gli execution environments possono essere:
 - un Dev Container, che può girare sul nostro pc o in remoto. Richiede però l'Agent window
 - un'infrastruttura cloud, quindi provisioned
 
-usando il **local agent**
+Usare il **local agent**
 
 ```text
 Aggiungi regole di linting per le variabili inutilizzate e per migliorare lo stile del codice; Sistema ogni errore
 ```
 
-usando il **cloud agent**
+Usare il **cloud agent**
 
 ```text
 Rendi il README più accattivante, in stile landing page
@@ -75,10 +79,13 @@ Esplorare il progetto con il **copilot agent** in **Ask mode**
 Descrivimi l'architettura del progetto
 ```
 
-### referenze
-[/init](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#project-initialization-for-copilot)
-[agent harnessess](https://code.visualstudio.com/docs/agents/concepts/agent-harnesses)
-[choose an agent harness](https://code.visualstudio.com/docs/agents/run/agent-harnesses)
+### Part 1 Complete
+
+Abbiamo:
+- **settato il repo**
+- **generato le istruzioni** con il comando **/init** così copilot capisce il nostro progetto e le scelte di design
+- **preso l'abitudine di rivedere le modifiche** prima di applicarle
+- **esplorato la codebase**
 
 <br />
 
@@ -92,7 +99,7 @@ vedremo:
 
 ### Task 1 - Pianificare l'architettura API
 
-Usando **copilot** in **Plan mode**
+Usare **copilot** in **Plan mode**
 
 ```text
 Ho bisogno di costruire un API proxy, lato server che sia in grado di raccogliere le GitHub contribution data per qualsiasi username dato. L'endpoint è https://github.com/{username}.contribs che restituisce un JSON. È necessario bypassare le restrizioni CORS. Pianifica l'implementazione includente la struttura della route, l'error handling e una strategia di caching
@@ -100,7 +107,7 @@ Ho bisogno di costruire un API proxy, lato server che sia in grado di raccoglier
 
 Durante il plan si 
 
-Usando l'**Agent window**, nella stessa sessione, usando il comando **/btw**
+Usare l'**Agent window**, nella stessa sessione, Usare il comando **/btw**
 
 ```text
 /btw Spiegami meglio il problema CORS. Immagina che io sia uno junior. Sii discorsivo e spiegami il concetto con esempi
@@ -116,7 +123,7 @@ curl http://localhost:4321/api/contributions/octocat
 
 ### Task 3 - Pianificare la Battle Page
 
-Usando **copilot** in **Plan mode**
+Usare **copilot** in **Plan mode**
 
 ```text
 Devo creare la main page. Pianifica la battle page per "Mona Mayhem - GitHub
@@ -136,7 +143,7 @@ Si apre il browser e si vedono:
 - i due input per gli username (Player 1 e Player 2)
 - il pulsante per la battaglia
 
-### Part 2 Completed
+### Part 2 Complete
 
 Abbiamo:
 - **pianificato prima di scrivere codice** invece che andare dritti sul codice
@@ -147,8 +154,74 @@ Abbiamo:
 
 ## 03 Build the Game
 
+vedremo:
+- task 1 - wire up the battle
+- task 2 - test the battle
+- task 3 - iterate with copilot
+
+### Task 1 - Wire Up the Battle
+
+Usare **copilot** in **Agent mode**
+
+```text
+Lato client-side, aggiungi del JavaScript che:
+- quando viene premuto il pulsante di Battle, vengono raccolti entrambi gli username dagli input
+- controlla che entrambi i campi siano pieni (e mostra un errore se non lo sono)
+- raccoglie i dati di contribution di entrambi gli utenti in parallelo usando le API
+- mostrare i grafici di contribution come griglie colorare: ciascun giorno è un quadrato colorato, usando la color palette di GitHub
+- mostra un badge VS tra i due utenti
+- mostra lo username, il totale di contribution e il date range per ciascun utente
+- gestisce lo stato di caricamento ed eventuali errori
+- si attiva anche se viene premuto il tasto Enter
+- per il momento UI semplice che è già stata predisposta
+```
+
+### Task 2 - Test the Battle
+
+Per testare:
+- inserire **octocat** e **torvalds**
+- l'app deve mostrare entrambi i grafici di contribution
+- testare i casi d'errore:
+  - lasciare uno o entrambi gli input vuoti e cliccare il pulsante Battle - deve comparire l'errore di validazione
+  - inserire username invalido - l'app deve mostrare un errore dalle API
+
+### Task 3 - Iterate with Copitot
+
+Se qualcosa non va bene, si può continuare ad interagire con copilot
+
+```text
+- i quadrati di contribution devono essere 12x12px
+- aggiungi un hover tooltip che mostri le date e il count delle contribution
+- il loading state ha bisogno di una animazione pulse
+```
+
+Suggerimenti:
+- **essere specifici** su quello che si vuole perchè richieste chiare danno risultati migliori
+- **dividere i task corposi** in prompt più piccoli se copilot inizia a deviare
+- **revisionare le modifiche prima di accettarle** perchè è più veloce revisionare il codice che riscriverlo dopo
+- **testare l'app ad ogni passo** così i problemi rimangono localizzati
+
+### Part 3 Complete
+
+Abbiamo:
+- **affinato i risultati** con prompt di follow-up
+- **gestito l'intero ciclo della feature** ovvero implementazione, review, testing e refinement
+
+<br />
+
 ## 04 Design-first Theming
+
+<br />
 
 ## 05 Polish & Parallel Work
 
+<br />
+
 ## 06 Bonus & Extension
+
+<br />
+
+## referenze
+[/init](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#project-initialization-for-copilot)
+[agent harnessess](https://code.visualstudio.com/docs/agents/concepts/agent-harnesses)
+[choose an agent harness](https://code.visualstudio.com/docs/agents/run/agent-harnesses)

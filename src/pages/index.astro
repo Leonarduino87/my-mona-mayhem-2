@@ -116,6 +116,92 @@
 		margin-top: 0;
 	}
 
+	:global(.loading-message) {
+		animation: loading-pulse 1.2s ease-in-out infinite;
+	}
+
+	@keyframes loading-pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.45; }
+	}
+
+	:global(.battle-results) {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		align-items: start;
+		gap: 1rem;
+		text-align: left;
+	}
+
+	:global(.player-result) {
+		min-width: 0;
+	}
+
+	:global(.player-result h3) {
+		overflow-wrap: anywhere;
+	}
+
+	:global(.vs-badge) {
+		align-self: center;
+		padding: 0.5rem;
+		border-radius: 50%;
+		background: #f0b429;
+		color: #24292f;
+		font-weight: 800;
+	}
+
+	:global(.contribution-grid) {
+		display: grid;
+		grid-auto-columns: 12px;
+		grid-auto-flow: column;
+		grid-template-rows: repeat(7, 12px);
+		gap: 3px;
+		max-width: 100%;
+		overflow-x: auto;
+		padding: 0.25rem 0;
+	}
+
+	:global(.contribution-day) {
+		position: relative;
+		width: 12px;
+		height: 12px;
+		border-radius: 2px;
+		background: #ebedf0;
+	}
+
+	:global(.contribution-day:hover::after) {
+		position: absolute;
+		z-index: 2;
+		bottom: calc(100% + 6px);
+		left: 50%;
+		width: max-content;
+		max-width: 15rem;
+		padding: 0.35rem 0.5rem;
+		border-radius: 3px;
+		background: #24292f;
+		color: #fff;
+		content: attr(data-tooltip);
+		font-size: 0.75rem;
+		line-height: 1.2;
+		transform: translateX(-50%);
+		pointer-events: none;
+	}
+
+	:global(.contribution-day[data-level='1']) { background: #9be9a8; }
+	:global(.contribution-day[data-level='2']) { background: #40c463; }
+	:global(.contribution-day[data-level='3']) { background: #30a14e; }
+	:global(.contribution-day[data-level='4']) { background: #216e39; }
+
+	@media (max-width: 36rem) {
+		:global(.battle-results) {
+			grid-template-columns: 1fr;
+		}
+
+		:global(.vs-badge) {
+			justify-self: center;
+		}
+	}
+
 	@media (max-width: 36rem) {
 		.battle {
 			margin: 1rem auto;
@@ -144,13 +230,24 @@
 		return typeof value === 'object' && value !== null;
 	}
 
-	function getContributionTotal(value: unknown): number | null {
+	type ContributionDay = { count: number; date?: string; level?: number };
+	type ContributionSummary = { total: number; weeks: ContributionDay[][]; dates: string[] };
+
+	function getContributionSummary(value: unknown): ContributionSummary | null {
 		if (!isRecord(value) || !Array.isArray(value.weeks)) return null;
 
 		let total = 0;
+		const weeks: ContributionDay[][] = [];
+		const dates: string[] = [];
 		for (const week of value.weeks) {
-			if (!isRecord(week) || !Array.isArray(week.days)) return null;
-			for (const day of week.days) {
+			if (!isRecord(week)) return null;
+			const weekDays = Array.isArray(week.contribution_days)
+				? week.contribution_days
+				: week.days;
+			if (!Array.isArray(weekDays)) return null;
+			const firstDay = typeof week.first_day === 'string' ? new Date(`${week.first_day}T00:00:00Z`) : null;
+			const days: ContributionDay[] = [];
+			for (const day of weekDays) {
 				if (
 					!isRecord(day)
 					|| typeof day.count !== 'number'
@@ -159,15 +256,37 @@
 				) {
 					return null;
 				}
+				if (day.date !== undefined && typeof day.date !== 'string') return null;
+				if (day.weekday !== undefined && (typeof day.weekday !== 'number' || !Number.isInteger(day.weekday) || day.weekday < 0 || day.weekday > 6)) return null;
+				if (day.level !== undefined && (typeof day.level !== 'number' || !Number.isInteger(day.level))) return null;
 				total += day.count;
 				if (!Number.isSafeInteger(total)) return null;
+				const contributionDay: ContributionDay = { count: day.count };
+				const dayDate = typeof day.date === 'string'
+					? day.date
+					: firstDay && !Number.isNaN(firstDay.getTime()) && typeof day.weekday === 'number'
+						? new Date(firstDay.getTime() + day.weekday * 86_400_000).toISOString().slice(0, 10)
+						: undefined;
+				if (dayDate) {
+					contributionDay.date = dayDate;
+					dates.push(dayDate);
+				}
+				if (typeof day.level === 'number') contributionDay.level = day.level;
+				days.push(contributionDay);
 			}
+			weeks.push(days);
 		}
 
-		return total;
+		if (typeof value.total_contributions === 'number'
+			&& Number.isSafeInteger(value.total_contributions)
+			&& value.total_contributions >= 0) {
+			total = value.total_contributions;
+		}
+
+		return { total, weeks, dates };
 	}
 
-	async function fetchContributionTotal(username: string): Promise<number> {
+	async function fetchContributions(username: string): Promise<ContributionSummary> {
 		const response = await fetch(`/api/contributions/${encodeURIComponent(username)}`);
 		let payload: unknown;
 
@@ -184,17 +303,57 @@
 			throw new Error(message);
 		}
 
-		const total = getContributionTotal(payload);
-		if (total === null) {
+		const summary = getContributionSummary(payload);
+		if (summary === null) {
 			throw new Error('The server returned contribution data in an unexpected format.');
 		}
-		return total;
+		return summary;
 	}
 
 	function showMessage(message: string): void {
 		const paragraph = document.createElement('p');
 		paragraph.textContent = message;
 		results.replaceChildren(resultsHeading, paragraph);
+	}
+
+	function showLoadingMessage(): void {
+		const paragraph = document.createElement('p');
+		paragraph.className = 'loading-message';
+		paragraph.textContent = 'Loading contribution data...';
+		results.replaceChildren(resultsHeading, paragraph);
+	}
+
+	function createPlayerResult(username: string, summary: ContributionSummary): HTMLElement {
+		const article = document.createElement('article');
+		article.className = 'player-result';
+		const heading = document.createElement('h3');
+		heading.textContent = username;
+		const total = document.createElement('p');
+		total.textContent = `${summary.total.toLocaleString()} contributions`;
+		const dateRange = document.createElement('p');
+		const sortedDates = summary.dates.slice().sort();
+		dateRange.textContent = sortedDates.length
+			? `${sortedDates[0]} - ${sortedDates[sortedDates.length - 1]}`
+			: 'Date range unavailable';
+		const grid = document.createElement('div');
+		grid.className = 'contribution-grid';
+		grid.setAttribute('role', 'img');
+		grid.setAttribute('aria-label', `${username} contribution activity by day`);
+		for (const week of summary.weeks) {
+			for (const day of week) {
+				const cell = document.createElement('span');
+				const level = day.level !== undefined && day.level >= 0 && day.level <= 4
+					? day.level
+					: day.count === 0 ? 0 : day.count < 3 ? 1 : day.count < 6 ? 2 : day.count < 10 ? 3 : 4;
+				cell.className = 'contribution-day';
+				cell.dataset.level = String(level);
+				cell.dataset.tooltip = `${day.date ?? 'Date unavailable'}: ${day.count} contribution${day.count === 1 ? '' : 's'}`;
+				cell.title = cell.dataset.tooltip;
+				grid.append(cell);
+			}
+		}
+		article.append(heading, total, dateRange, grid);
+		return article;
 	}
 
 	form.addEventListener('submit', async (event) => {
@@ -209,21 +368,27 @@
 
 		submitButton.disabled = true;
 		submitButton.textContent = 'Battle in progress...';
-		showMessage('Loading contribution data...');
+		showLoadingMessage();
 
 		try {
-			const [playerOneTotal, playerTwoTotal] = await Promise.all([
-				fetchContributionTotal(playerOne),
-				fetchContributionTotal(playerTwo),
+			const [playerOneData, playerTwoData] = await Promise.all([
+				fetchContributions(playerOne),
+				fetchContributions(playerTwo),
 			]);
-			const outcome = playerOneTotal === playerTwoTotal
+			const outcome = playerOneData.total === playerTwoData.total
 				? "It's a tie!"
-				: `${playerOneTotal > playerTwoTotal ? playerOne : playerTwo} wins!`;
-			const score = document.createElement('p');
-			score.textContent = `${playerOne}: ${playerOneTotal} contributions | ${playerTwo}: ${playerTwoTotal} contributions`;
+				: `${playerOneData.total > playerTwoData.total ? playerOne : playerTwo} wins!`;
+			const battleResults = document.createElement('div');
+			battleResults.className = 'battle-results';
+			const versus = document.createElement('span');
+			versus.className = 'vs-badge';
+			versus.textContent = 'VS';
+			versus.setAttribute('aria-label', 'versus');
 			const winner = document.createElement('p');
+			winner.className = 'battle-outcome';
 			winner.textContent = outcome;
-			results.replaceChildren(resultsHeading, score, winner);
+			battleResults.append(createPlayerResult(playerOne, playerOneData), versus, createPlayerResult(playerTwo, playerTwoData));
+			results.replaceChildren(resultsHeading, battleResults, winner);
 		} catch (error) {
 			const message = error instanceof TypeError
 				? 'Unable to reach the contributions API. Check your connection and try again.'
