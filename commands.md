@@ -19,7 +19,7 @@ npm run dev
 
 #### task 1 - generare le workspace instructions
 
-Usare il comando **/init** per inizializzare Copilot con delle istruzioni custom.
+Usiamo il comando **/init** per inizializzare Copilot con delle istruzioni custom.
 Queste istruzioni custom sono specifiche di progetto e sono delle guide che migliorano tutte le sessioni CLI del workspace
 
 Solitamente queste istruzioni contengono:
@@ -33,7 +33,7 @@ Se il file esiste già, Copilot può suggerire delle migliorie da accettare o ri
 /init Mantieni le istruzioni semplici. Includi una panoramica del progetto, i comandi di build/dev e le best practice di Astro. Ignora la cartella del workshop.
 ```
 
-#### task 2 - usare i background agents
+#### task 2 - Usiamo i background agents
 Un agent harness è lo strato software che runna una agent session.
 Trasforma il modello in un agent:
 - fornendogli il contesto
@@ -59,13 +59,13 @@ Gli execution environments possono essere:
 - un Dev Container, che può girare sul nostro pc o in remoto. Richiede però l'Agent window
 - un'infrastruttura cloud, quindi provisioned
 
-Usare il **local agent**
+Usiamo il **local agent**
 
 ```text
 Aggiungi regole di linting per le variabili inutilizzate e per migliorare lo stile del codice; Sistema ogni errore
 ```
 
-Usare il **cloud agent**
+Usiamo il **cloud agent**
 
 ```text
 Rendi il README più accattivante, in stile landing page
@@ -73,7 +73,7 @@ Rendi il README più accattivante, in stile landing page
 
 #### task 3 - esplorare il progetto
 
-Esplorare il progetto con il **copilot agent** in **Ask mode**
+Esplorare il progetto con il **Copilot agent** in **Ask mode**
 
 ```text
 Descrivimi l'architettura del progetto
@@ -83,7 +83,7 @@ Descrivimi l'architettura del progetto
 
 Abbiamo:
 - **settato il repo**
-- **generato le istruzioni** con il comando **/init** così copilot capisce il nostro progetto e le scelte di design
+- **generato le istruzioni** con il comando **/init** così Copilot capisce il nostro progetto e le scelte di design
 - **preso l'abitudine di rivedere le modifiche** prima di applicarle
 - **esplorato la codebase**
 
@@ -99,7 +99,7 @@ vedremo:
 
 ### Task 1 - Pianificare l'architettura API
 
-Usare **copilot** in **Plan mode**
+Usiamo **Copilot** in **Plan mode**
 
 ```text
 Ho bisogno di costruire un API proxy, lato server che sia in grado di raccogliere le GitHub contribution data per qualsiasi username dato. L'endpoint è https://github.com/{username}.contribs che restituisce un JSON. È necessario bypassare le restrizioni CORS. Pianifica l'implementazione includente la struttura della route, l'error handling e una strategia di caching
@@ -107,7 +107,7 @@ Ho bisogno di costruire un API proxy, lato server che sia in grado di raccoglier
 
 Durante il plan si 
 
-Usare l'**Agent window**, nella stessa sessione, Usare il comando **/btw**
+Usiamo l'**Agent window**, nella stessa sessione, Usiamo il comando **/btw**
 
 ```text
 /btw Spiegami meglio il problema CORS. Immagina che io sia uno junior. Sii discorsivo e spiegami il concetto con esempi
@@ -123,7 +123,7 @@ curl http://localhost:4321/api/contributions/octocat
 
 ### Task 3 - Pianificare la Battle Page
 
-Usare **copilot** in **Plan mode**
+Usiamo **Copilot** in **Plan mode**
 
 ```text
 Devo creare la main page. Pianifica la battle page per "Mona Mayhem - GitHub
@@ -157,11 +157,11 @@ Abbiamo:
 vedremo:
 - task 1 - wire up the battle
 - task 2 - test the battle
-- task 3 - iterate with copilot
+- task 3 - iterate with Copilot
 
 ### Task 1 - Wire Up the Battle
 
-Usare **copilot** in **Agent mode**
+Usiamo **Copilot** in **Agent mode**
 
 ```text
 Lato client-side, aggiungi del JavaScript che:
@@ -187,7 +187,7 @@ Per testare:
 
 ### Task 3 - Iterate with Copitot
 
-Se qualcosa non va bene, si può continuare ad interagire con copilot
+Se qualcosa non va bene, si può continuare ad interagire con Copilot
 
 ```text
 - i quadrati di contribution devono essere 12x12px
@@ -197,7 +197,7 @@ Se qualcosa non va bene, si può continuare ad interagire con copilot
 
 Suggerimenti:
 - **essere specifici** su quello che si vuole perchè richieste chiare danno risultati migliori
-- **dividere i task corposi** in prompt più piccoli se copilot inizia a deviare
+- **dividere i task corposi** in prompt più piccoli se Copilot inizia a deviare
 - **revisionare le modifiche prima di accettarle** perchè è più veloce revisionare il codice che riscriverlo dopo
 - **testare l'app ad ogni passo** così i problemi rimangono localizzati
 
@@ -211,17 +211,99 @@ Abbiamo:
 
 ## 04 Design-first Theming
 
+Vedremo:
+- task 1 - plan the retro theme
+- task 2 - implement the theme
+- task 3 - fine-tune the vibes
+- task 4 - update instructions
+
+### Task 1 - Plan the Retro Theme
+
+Usiamo **Copilot** in **Plan mode** ma **NON accettiamo le proposte**
+
+```text
+Voglio trasformare questa pagina in un'esperienza arcade retrò a tutti gli effetti. Pianifica un restyling visivo completo che includa: effetti scanline CRT sullo sfondo, un bagliore al neon sul titolo che pulsa come un'insegna luminosa, un badge VS animato con transizioni di colore in gradiente, un effetto di riflesso luminoso (shine/shimmer) sulle card dei risultati utente, animazioni di ingresso fluttuante (float-in) per i campi di input, un testo di caricamento che cambia colore tra verde e viola, ed effetti glow al passaggio del mouse sui quadratini dei contributi. Mantieni lo sfondo scuro (#0a0a1a) con i colori d'accento verde (#5fed83) e viola (#8a2be2). Usa un tema scuro con il font retro gaming Press Start 2P di Google Fonts.
+```
+
+Prendiamo la proposta e la integriamo:
+
+- integrazione 1
+```text
+Il bagliore al neon pulsa lentamente, circa 3 secondi.
+```
+
+- integrazione 2
+```text
+Dividi il piano in fasi: prima sfondo e tipografia, poi le animazioni, infine gli effetti hover. Così posso rivedere e testare ogni fase separatamente
+```
+
+### Task 2 - Implement the Theme
+
+Usiamo **Copilot** in **Autopilot mode**
+
+### Task 3 - Fine-Tune the Vibes
+
+Usiamo **Copilot** in **Autopilot mode** e facciamo fine-tune:
+
+- fine-tune 1
+
+```text
+l'effetto scanline è troppo debole, aumenta l'opacità di 0.03
+```
+
+- fine-tune 2
+
+```text
+aggiungi al titolo uno sfarfallio elettrico
+```
+
+- fine-tune 3
+
+```text
+il badge VS deve pulsare più marcatamente
+```
+
+### Task 4 - Update Instructions
+
+Aggiorniamo le istruzioni di **Copilot**
+
+```text
+Aggiungi una sezione per il design nel documento AGENTS.md che descriva il nostro retro arcade theme: colori, fonts e animation style
+```
+
+### Part 4 Complete
+
+Abbiamo:
+- usato un planning workflow per abbozzare **il design prima di implementarlo**
+- **affinato la UI** con prompt di follow-up
+- **aggiornato le istruzioni dopo decisioni importanti** per mantenere Copilot consistente con la parte visuale
 <br />
 
 ## 05 Polish & Parallel Work
+
+Vedremo:
+- 
+
+### Part 5 Complete
+
+Abbiamo:
+- ****
 
 <br />
 
 ## 06 Bonus & Extension
 
+Vedremo:
+- 
+
+### Part 6 Complete
+
+Abbiamo:
+- ****
+
 <br />
 
-## referenze
-[/init](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#project-initialization-for-copilot)
+## Referenze
+[/init](https://docs.github.com/en/Copilot/reference/Copilot-cli-reference/cli-command-reference#project-initialization-for-Copilot)
 [agent harnessess](https://code.visualstudio.com/docs/agents/concepts/agent-harnesses)
 [choose an agent harness](https://code.visualstudio.com/docs/agents/run/agent-harnesses)

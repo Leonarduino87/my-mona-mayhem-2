@@ -7,6 +7,9 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 		<title>Mona Mayhem - GitHub Contribution Battle Arena</title>
 	</head>
 	<body>
@@ -39,63 +42,149 @@
 </html>
 
 <style>
+	:global(:root) {
+		color-scheme: dark;
+		--arcade-bg: #0a0a1a;
+		--arcade-panel: #121226;
+		--arcade-panel-raised: #191932;
+		--arcade-green: #5fed83;
+		--arcade-purple: #8a2be2;
+		--arcade-text: #f3efff;
+		--arcade-muted: #aaa2c8;
+	}
+
 	:global(*) {
 		box-sizing: border-box;
 	}
 
 	:global(body) {
+		min-height: 100vh;
 		margin: 0;
-		background: #f4f4f5;
-		color: #222;
-		font-family: Arial, sans-serif;
+		background: var(--arcade-bg);
+		color: var(--arcade-text);
+		font-family: 'Press Start 2P', monospace;
+		font-size: 0.65rem;
+		line-height: 1.8;
+	}
+
+	:global(body::before) {
+		position: fixed;
+		z-index: 10;
+		inset: 0;
+		background: repeating-linear-gradient(
+			to bottom,
+			rgb(0 0 0 / 0%) 0,
+			rgb(0 0 0 / 0%) 2px,
+			rgb(0 0 0 / 25%) 3px,
+			rgb(0 0 0 / 0%) 4px
+		);
+		content: '';
+		pointer-events: none;
 	}
 
 	.battle {
-		width: min(100% - 2rem, 42rem);
-		margin: 4rem auto;
-		padding: 2rem;
-		border: 1px solid #ddd;
+		width: min(100% - 2rem, 68rem);
+		margin: 3rem auto;
+		padding: clamp(1.25rem, 4vw, 3rem);
+		border: 1px solid #39305d;
 		border-radius: 0.5rem;
-		background: #fff;
+		background: var(--arcade-panel);
+		box-shadow: 0 0 2rem rgb(138 43 226 / 12%);
 	}
 
 	header {
-		margin-bottom: 2rem;
+		margin-bottom: 2.5rem;
 		text-align: center;
 	}
 
-	h1,
+	h1 {
+		margin: 0.5rem 0 1rem;
+		color: var(--arcade-green);
+		font-size: clamp(1.05rem, 3vw, 1.8rem);
+		line-height: 1.7;
+		text-shadow: 0 0 0.4rem var(--arcade-green), 0 0 1.25rem rgb(95 237 131 / 70%);
+		animation: neon-sign 3s ease-in-out infinite, electrical-flicker 4.8s linear infinite;
+	}
+
+	@keyframes electrical-flicker {
+		0%, 38%, 42%, 71%, 75%, 100% { filter: brightness(1); }
+		39%, 72% { filter: brightness(0.5); }
+		40%, 73% { filter: brightness(1.35); }
+		41%, 74% { filter: brightness(0.72); }
+	}
+
+	@keyframes neon-sign {
+		0%, 100% {
+			opacity: 1;
+			text-shadow: 0 0 0.4rem var(--arcade-green), 0 0 1.25rem rgb(95 237 131 / 70%);
+		}
+		50% {
+			opacity: 0.86;
+			text-shadow: 0 0 0.2rem var(--arcade-green), 0 0 0.65rem rgb(95 237 131 / 35%);
+		}
+	}
+
 	header p {
 		margin: 0.5rem 0;
+		color: var(--arcade-muted);
 	}
 
 	.players {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 1rem;
-		margin-bottom: 1rem;
+		gap: 1.25rem;
+		margin-bottom: 1.25rem;
 	}
 
 	label {
 		display: grid;
 		gap: 0.5rem;
-		font-weight: 700;
+		color: var(--arcade-green);
 	}
 
 	input,
 	button {
-		min-height: 2.75rem;
-		padding: 0.625rem 0.75rem;
-		border: 1px solid #aaa;
+		min-width: 0;
+		min-height: 3.25rem;
+		padding: 0.8rem 1rem;
+		border: 1px solid #51416f;
 		border-radius: 0.25rem;
 		font: inherit;
+		font-size: 0.65rem;
+	}
+
+	input {
+		background: #090918;
+		color: var(--arcade-text);
+		animation: input-float-in 650ms cubic-bezier(0.2, 0.75, 0.3, 1) both;
+	}
+
+	input:nth-of-type(2) {
+		animation-delay: 120ms;
+	}
+
+	@keyframes input-float-in {
+		from {
+			opacity: 0;
+			transform: translateY(0.8rem);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	input:focus {
+		border-color: var(--arcade-green);
+		outline: 2px solid rgb(95 237 131 / 25%);
+		outline-offset: 2px;
 	}
 
 	button {
 		width: 100%;
-		border-color: #24292f;
-		background: #24292f;
-		color: #fff;
+		border-color: var(--arcade-green);
+		background: var(--arcade-green);
+		color: #08120b;
 		cursor: pointer;
 	}
 
@@ -107,17 +196,21 @@
 	.results {
 		min-height: 6rem;
 		margin-top: 2rem;
-		padding-top: 1rem;
-		border-top: 1px solid #ddd;
+		padding-top: 1.5rem;
+		border-top: 1px solid #39305d;
 		text-align: center;
+		color: var(--arcade-muted);
 	}
 
 	.results h2 {
-		margin-top: 0;
+		margin: 0 0 1rem;
+		color: var(--arcade-purple);
+		font-size: 0.8rem;
+		line-height: 1.8;
 	}
 
 	:global(.loading-message) {
-		animation: loading-pulse 1.2s ease-in-out infinite;
+		animation: loading-pulse 1.2s ease-in-out infinite, loading-colors 1.8s ease-in-out infinite;
 	}
 
 	@keyframes loading-pulse {
@@ -125,29 +218,86 @@
 		50% { opacity: 0.45; }
 	}
 
+	@keyframes loading-colors {
+		0%, 100% { color: var(--arcade-green); }
+		50% { color: var(--arcade-purple); }
+	}
+
 	:global(.battle-results) {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 		align-items: start;
-		gap: 1rem;
+		gap: 1.25rem;
 		text-align: left;
 	}
 
 	:global(.player-result) {
+		position: relative;
+		isolation: isolate;
 		min-width: 0;
+		overflow: hidden;
+		padding: 1.25rem;
+		border: 1px solid #39305d;
+		border-radius: 0.35rem;
+		background: var(--arcade-panel-raised);
+		color: var(--arcade-muted);
+	}
+
+	:global(.player-result::before) {
+		position: absolute;
+		z-index: -1;
+		inset: 0;
+		background: linear-gradient(
+			110deg,
+			transparent 20%,
+			rgb(255 255 255 / 0%) 35%,
+			rgb(255 255 255 / 12%) 50%,
+			rgb(255 255 255 / 0%) 65%,
+			transparent 80%
+		);
+		content: '';
+		transform: translateX(-120%);
+		animation: card-shimmer 5s ease-in-out infinite;
+		pointer-events: none;
+	}
+
+	@keyframes card-shimmer {
+		0%, 55% { transform: translateX(-120%); }
+		100% { transform: translateX(120%); }
 	}
 
 	:global(.player-result h3) {
 		overflow-wrap: anywhere;
+		color: var(--arcade-green);
+		font-size: 0.7rem;
+		line-height: 1.8;
 	}
 
 	:global(.vs-badge) {
 		align-self: center;
-		padding: 0.5rem;
+		padding: 0.65rem;
 		border-radius: 50%;
-		background: #f0b429;
-		color: #24292f;
-		font-weight: 800;
+		background: linear-gradient(135deg, var(--arcade-green), var(--arcade-purple), var(--arcade-green));
+		background-size: 200% 200%;
+		color: #fff;
+		text-shadow: 0 1px 2px #111;
+		animation: versus-gradient 2.5s ease infinite, versus-pulse 1.1s ease-in-out infinite;
+	}
+
+	@keyframes versus-gradient {
+		0%, 100% { background-position: 0% 50%; }
+		50% { background-position: 100% 50%; }
+	}
+
+	@keyframes versus-pulse {
+		0%, 100% {
+			transform: scale(1);
+			box-shadow: 0 0 0.35rem rgb(138 43 226 / 55%);
+		}
+		50% {
+			transform: scale(1.16);
+			box-shadow: 0 0 1rem rgb(95 237 131 / 90%), 0 0 1.5rem rgb(138 43 226 / 75%);
+		}
 	}
 
 	:global(.contribution-grid) {
@@ -166,7 +316,14 @@
 		width: 12px;
 		height: 12px;
 		border-radius: 2px;
-		background: #ebedf0;
+		background: #25243a;
+		transition: box-shadow 150ms ease, transform 150ms ease;
+	}
+
+	:global(.contribution-day:hover) {
+		z-index: 1;
+		transform: scale(1.25);
+		box-shadow: 0 0 0.45rem var(--arcade-green), 0 0 0.9rem rgb(95 237 131 / 75%);
 	}
 
 	:global(.contribution-day:hover::after) {
@@ -178,8 +335,8 @@
 		max-width: 15rem;
 		padding: 0.35rem 0.5rem;
 		border-radius: 3px;
-		background: #24292f;
-		color: #fff;
+		background: var(--arcade-panel);
+		color: var(--arcade-text);
 		content: attr(data-tooltip);
 		font-size: 0.75rem;
 		line-height: 1.2;
@@ -187,12 +344,26 @@
 		pointer-events: none;
 	}
 
-	:global(.contribution-day[data-level='1']) { background: #9be9a8; }
-	:global(.contribution-day[data-level='2']) { background: #40c463; }
-	:global(.contribution-day[data-level='3']) { background: #30a14e; }
-	:global(.contribution-day[data-level='4']) { background: #216e39; }
+	:global(.contribution-day[data-level='1']) { background: #2c7143; }
+	:global(.contribution-day[data-level='2']) { background: #36a957; }
+	:global(.contribution-day[data-level='3']) { background: #5fed83; }
+	:global(.contribution-day[data-level='4']) { background: #b0ffc3; }
 
-	@media (max-width: 36rem) {
+	@media (prefers-reduced-motion: reduce) {
+		h1,
+		input,
+		:global(.loading-message),
+		:global(.player-result::before),
+		:global(.vs-badge) {
+			animation: none;
+		}
+
+		:global(.contribution-day) {
+			transition: none;
+		}
+	}
+
+	@media (max-width: 42rem) {
 		:global(.battle-results) {
 			grid-template-columns: 1fr;
 		}
@@ -210,6 +381,10 @@
 
 		.players {
 			grid-template-columns: 1fr;
+		}
+
+		:global(.player-result) {
+			padding: 1rem;
 		}
 	}
 </style>
